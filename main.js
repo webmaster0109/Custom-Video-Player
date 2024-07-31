@@ -25,6 +25,8 @@ const video_player = document.querySelector('#video-player'),
     tracks = video_player.querySelectorAll('track');
     change_audio = video_player.querySelector('.change_audio');
 
+    let thumbnail = video_player.querySelector('.thumbnail');
+
 mainVideo.addEventListener('loadeddata', () => {
     setInterval(() => {
         let bufferedTime = mainVideo.buffered.end(0);
@@ -217,8 +219,20 @@ volume.addEventListener('click', () => {
 progressArea.addEventListener('mousemove', (e) => {
     let progressWidthval = progressArea.clientWidth;
     let x = e.offsetX;
+
     progressAreaTime.style.setProperty('--x', `${x}px`);
     progressAreaTime.style.display = 'block';
+
+    if (x >= progressWidthval - 120) {
+        x = progressWidthval - 120;
+    } else if (x <= 95) {
+        x = 95;
+    } else {
+        x = e.offsetX;
+    }
+
+    thumbnail.style.setProperty('--x', `${x}px`);
+    thumbnail.style.display = 'block';
 
     let videoDuration = mainVideo.duration;
     let progressTime = Math.floor((x / progressWidthval) * videoDuration);
@@ -240,6 +254,7 @@ progressArea.addEventListener('mousemove', (e) => {
 
 
 progressArea.addEventListener('mouseleave', () => {
+    thumbnail.style.display = 'none';
     progressAreaTime.style.display = 'none';
 })
 
@@ -462,3 +477,27 @@ if (tracks.length == 0) {
     captionsBtn.parentNode.remove();
 }
 
+
+// Video Preview
+var thumbnails = [];
+
+var thumbnailWidth = 200;
+var thumbnailHeight = 120;
+var horizontalItemCount = 5;
+var verticalItemCount = 5;
+
+let preview_video = document.createElement('video');
+preview_video.preload = 'metadata';
+preview_video.width = "500";
+preview_video.height = "300";
+preview_video.controls = true;
+
+preview_video.addEventListener('loadeddata', (e) => {
+    preview_video.pause();
+
+    var count = 1;
+
+    var id = 1;
+
+    var x = 0, y = 0;
+})

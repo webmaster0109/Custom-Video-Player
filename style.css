@@ -37,11 +37,24 @@ section {
 
 .container #video-player {
     position: relative;
-    width: 980px;
+    width: 1280px;
     height: 100%;
     border-radius: 5px;
     overflow: hidden;
     box-shadow: 0 0 5px rgba(255, 255, 255, 0.24);
+}
+
+.container #video-player .thumbnail {
+    position: absolute;
+    bottom: 100px;
+    left: calc(var(--x) + 11px);
+    transform: translateX(-50%);
+    width: 210px;
+    height: 125px;
+    background: #fff;
+    border: 2px solid #fff;
+    border-radius: 3px;
+    display: none;
 }
 
 .container #video-player #main-video {
@@ -58,18 +71,18 @@ section {
     bottom: 70px;
     min-width: 70px;
     padding: 5px 10px;
-    color: #fff;
-    font-size: 14px;
+    color: rgb(255, 174, 0);
+    font-size: 16px;
     letter-spacing: 0.6px;
     /* background: #002333; */
-    background: rgb(255, 174, 0);
+    background: transparent;
     z-index: 1;
     display: none;
     text-align: center;
     white-space: nowrap;
 }
 
-#video-player .progressAreaTime::before {
+/* #video-player .progressAreaTime::before {
     content: '';
     position: absolute;
     bottom: -40%;
@@ -79,7 +92,7 @@ section {
     width: 15px;
     height: 15px;
     z-index: -1;
-}
+} */
 
 .container #video-player .controls {
     position: absolute;
@@ -144,7 +157,7 @@ video::cue {
 .captions_text {
     position: absolute;
     left: 50%;
-    bottom: 14%;
+    bottom: 10%;
     width: 90%;
     max-width: 90%;
     transform: translate(-50%, -50%);
@@ -155,16 +168,17 @@ video::cue {
 }
 
 .captions_text.active {
-    bottom: 0%;
+    bottom: 3%;
 }
 
 .captions_text mark {
     background-color: #0000008f !important;
-    padding: 5px;
-    font-size: 17px;
+    padding: 7px;
+    font-size: 20px;
     letter-spacing: 1px;
-    border-radius: 5px;
-    color: #fff;
+    border-radius: 3px;
+    font-weight: 500;
+    color: rgb(255, 174, 0);
 }
 
 .controls .controls-list {
@@ -234,10 +248,10 @@ video::cue {
 .controls .icon .volume_range::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 12px;
-    height: 12px;
+    width: 15px;
+    height: 15px;
     border-radius: 50%;
-    background: #fff;
+    background: rgb(255, 174, 0);
     cursor: pointer;
     border: none;
     outline: none;

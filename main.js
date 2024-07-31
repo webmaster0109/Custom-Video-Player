@@ -23,6 +23,7 @@ const video_player = document.querySelector('#video-player'),
     caption_labels = video_player.querySelector('.captions ul'),
     playback = video_player.querySelectorAll('.playback li'),
     tracks = video_player.querySelectorAll('track');
+    change_audio = video_player.querySelector('.change_audio');
 
 mainVideo.addEventListener('loadeddata', () => {
     setInterval(() => {
@@ -31,7 +32,7 @@ mainVideo.addEventListener('loadeddata', () => {
         let duration = mainVideo.duration;
         let width = (bufferedTime / duration) * 100;
         bufferBar.style.width = `${width}%`;
-    }, 500);
+    }, 2000);
 })
 
 if (tracks.length != 0) {
@@ -41,6 +42,9 @@ if (tracks.length != 0) {
         caption_labels.insertAdjacentHTML('beforeend', trackLi);
     }
 }
+
+// audio changing
+
 
 const caption = captions.querySelectorAll('ul li');
 
@@ -128,30 +132,44 @@ fast_forward.addEventListener('click', () => {
 // Load video duration
 mainVideo.addEventListener('loadeddata', (e) => {
     let videoDuration = e.target.duration;
-    let totalMin = Math.floor(videoDuration / 60);
+
+    let totalHours = Math.floor(videoDuration / 3600);
+    let totalMin = Math.floor((videoDuration % 3600) / 60);
     let totalSec = Math.floor(videoDuration % 60);
 
-    // if seconds are less than 10 then add 0 at the beggining
-    totalSec < 10 ? totalSec = '0' + totalSec : totalSec;
-    totalDuration.innerText = `${totalMin}:${totalSec}`;
+    // If seconds are less than 10, add 0 at the beginning
+    totalSec = totalSec < 10 ? '0' + totalSec : totalSec;
+    // If minutes are less than 10, add 0 at the beginning
+    totalMin = totalMin < 10 ? '0' + totalMin : totalMin;
+    // If hours are less than 10, add 0 at the beginning
+    totalHours = totalHours < 10 ? '0' + totalHours : totalHours;
 
+    totalDuration.innerText = `${totalHours}:${totalMin}:${totalSec}`;
 })
 
-// current video time
+// Current video time
 mainVideo.addEventListener('timeupdate', (e) => {
     let currentVideoTime = e.target.currentTime;
-    let currentMin = Math.floor(currentVideoTime / 60);
+
+    let currentHours = Math.floor(currentVideoTime / 3600);
+    let currentMin = Math.floor((currentVideoTime % 3600) / 60);
     let currentSec = Math.floor(currentVideoTime % 60);
 
-    currentSec < 10 ? currentSec = '0' + currentSec : currentSec;
-    current.innerText = `${currentMin}:${currentSec}`;
+    // If seconds are less than 10, add 0 at the beginning
+    currentSec = currentSec < 10 ? '0' + currentSec : currentSec;
+    // If minutes are less than 10, add 0 at the beginning
+    currentMin = currentMin < 10 ? '0' + currentMin : currentMin;
+    // If hours are less than 10, add 0 at the beginning
+    currentHours = currentHours < 10 ? '0' + currentHours : currentHours;
 
+    current.innerText = `${currentHours}:${currentMin}:${currentSec}`;
 
     let videoDuration = e.target.duration;
     // ProgressBar width changing
     let progressWidth = (currentVideoTime / videoDuration) * 100;
     progressBar.style.width = `${progressWidth}%`;
 })
+
 
 // Update playing video time using progress bar width
 progressArea.addEventListener('click', (e) => {
@@ -203,13 +221,23 @@ progressArea.addEventListener('mousemove', (e) => {
     progressAreaTime.style.display = 'block';
 
     let videoDuration = mainVideo.duration;
-    let progressTime = Math.floor((x/progressWidthval) * videoDuration);
-    let currentMin = Math.floor(progressTime / 60);
+    let progressTime = Math.floor((x / progressWidthval) * videoDuration);
+    
+    let currentHours = Math.floor(progressTime / 3600);
+    let currentMin = Math.floor((progressTime % 3600) / 60);
     let currentSec = Math.floor(progressTime % 60);
 
-    currentSec < 10 ? currentSec = '0' + currentSec : currentSec;
-    progressAreaTime.innerText = `${currentMin} : ${currentSec}`;
-})
+    // If seconds are less than 10, add 0 at the beginning
+    currentSec = currentSec < 10 ? '0' + currentSec : currentSec;
+    // If minutes are less than 10, add 0 at the beginning
+    currentMin = currentMin < 10 ? '0' + currentMin : currentMin;
+    // If hours are less than 10, add 0 at the beginning
+    currentHours = currentHours < 10 ? '0' + currentHours : currentHours;
+
+    // Display time in the format HH:MM:SS
+    progressAreaTime.innerText = `${currentHours}:${currentMin}:${currentSec}`;
+});
+
 
 progressArea.addEventListener('mouseleave', () => {
     progressAreaTime.style.display = 'none';
@@ -338,33 +366,33 @@ for (let i = 0; i < track.length; i++) {
 }
 
 // Blob url
-let xhr = new XMLHttpRequest();
-const videoSource = mainVideo.querySelector('source');
-xhr.open('GET', `${videoSource.src}`);
-console.log(videoSource.src);
-xhr.responseType = 'arraybuffer';
-xhr.onload = (e) => {
-    let blob = new Blob([xhr.response]);
-    let url = URL.createObjectURL(blob);
-    mainVideo.src = url;
-}
-xhr.send();
+// let xhr = new XMLHttpRequest();
+// const videoSource = mainVideo.querySelector('source');
+// xhr.open('GET', `${videoSource.src}`);
+// console.log(videoSource.src);
+// xhr.responseType = 'arraybuffer';
+// xhr.onload = (e) => {
+//     let blob = new Blob([xhr.response]);
+//     let url = URL.createObjectURL(blob);
+//     mainVideo.src = url;
+// }
+// xhr.send();
 
 // store video duration and path in local storage
-window.addEventListener('unload', () => {
-    let setDuration = localStorage.setItem('duration', `${mainVideo.currentTime}`);
-    let setSrc = localStorage.setItem('src', `${mainVideo.getAttribute('src')}`);
-})
+// window.addEventListener('unload', () => {
+//     let setDuration = localStorage.setItem('duration', `${mainVideo.currentTime}`);
+//     let setSrc = localStorage.setItem('src', `${mainVideo.getAttribute('src')}`);
+// })
 
-window.addEventListener('load', () => {
-    let getDuration = localStorage.getItem('duration');
-    let getSrc = localStorage.getItem('src');
+// window.addEventListener('load', () => {
+//     let getDuration = localStorage.getItem('duration');
+//     let getSrc = localStorage.getItem('src');
 
-    if (getSrc) {
-        mainVideo.src = getSrc;
-        mainVideo.currentTime = getDuration;
-    }
-})
+//     if (getSrc) {
+//         mainVideo.src = getSrc;
+//         mainVideo.currentTime = getDuration;
+//     }
+// })
 
 mainVideo.addEventListener('contextmenu', (e) => {
     e.preventDefault();
@@ -433,3 +461,4 @@ if (tracks.length == 0) {
     captionsBtn.remove();
     captionsBtn.parentNode.remove();
 }
+

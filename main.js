@@ -60,6 +60,47 @@ function pauseVideo() {
     mainVideo.pause();
 }
 
+mainVideo.addEventListener('click', () => {
+    const isVideoPaused = video_player.classList.contains('paused');
+
+    isVideoPaused ? pauseVideo() : playVideo();
+})
+
+document.addEventListener('keydown', (event) => {
+    if (event.code === 'Space') {
+        event.preventDefault(); // Prevent default spacebar behavior (scrolling)
+        const isVideoPaused = video_player.classList.contains('paused');
+        isVideoPaused ? pauseVideo() : playVideo();
+    } else if (event.code === 'ArrowLeft') {
+        mainVideo.currentTime -= 10; // Fast rewind
+    } else if (event.code === 'ArrowRight') {
+        mainVideo.currentTime += 10; // Fast forward
+    } else if (event.code === 'KeyM') {
+        muteVolume(); // Mute/unmute video
+    } else if (event.code === 'ArrowUp') {
+        changeVolumeLevel(1); // Increase volume
+    } else if (event.code === 'ArrowDown') {
+        changeVolumeLevel(-1); // Decrease volume
+    }
+});
+
+
+function changeVolumeLevel(direction) {
+    let newVolume = mainVideo.volume * 100 + direction * 5;
+    newVolume = Math.max(0, Math.min(100, newVolume)); // Ensure volume is within 0-100 range
+
+    mainVideo.volume = newVolume / 100;
+    volume_range.value = newVolume;
+
+    if (newVolume == 0) {
+        volume.innerHTML = 'volume_off';
+    } else if (newVolume < 40) {
+        volume.innerHTML = 'volume_down';
+    } else {
+        volume.innerHTML = 'volume_up';
+    }
+}
+
 play_pause.addEventListener('click', () => {
     const isVideoPaused = video_player.classList.contains('paused');
 
@@ -212,6 +253,18 @@ fullscreen.addEventListener('click', () => {
     }
 })
 
+mainVideo.addEventListener('dblclick', () => {
+    if (!video_player.classList.contains('openFullScreen')) {
+        video_player.classList.add('openFullScreen');
+        fullscreen.title = "fullscreen_exit";
+        video_player.requestFullscreen();
+    } else {
+        video_player.classList.remove('openFullScreen');
+        fullscreen.title = "fullscreen";
+        document.exitFullscreen();
+    }
+})
+
 // open settings
 settingsBtn.addEventListener('click', () => {
     settings.classList.toggle('active');
@@ -288,6 +341,7 @@ for (let i = 0; i < track.length; i++) {
 let xhr = new XMLHttpRequest();
 const videoSource = mainVideo.querySelector('source');
 xhr.open('GET', `${videoSource.src}`);
+console.log(videoSource.src);
 xhr.responseType = 'arraybuffer';
 xhr.onload = (e) => {
     let blob = new Blob([xhr.response]);

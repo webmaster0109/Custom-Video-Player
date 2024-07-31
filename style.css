@@ -37,7 +37,7 @@ section {
 
 .container #video-player {
     position: relative;
-    width: 1080px;
+    width: 980px;
     height: 100%;
     border-radius: 5px;
     overflow: hidden;

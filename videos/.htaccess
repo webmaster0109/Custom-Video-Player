@@ -1,0 +1,6 @@
+# Contents of .htaccess
+
+RewriteEngine on
+RewriteCond %{HTTP_REFERER} !^http://127.0.0.1:5500/videos/.*$ [NC]
+RewriteCond %{HTTP_REFERER} !^http://127.0.0.1:5500/videos/.*$ [NC]
+RewriteRule .(mp4|mkv|avi)$ - [F]

@@ -4,6 +4,7 @@ const video_player = document.querySelector('#video-player'),
     progressAreaTime = video_player.querySelector('.progressAreaTime'),
     controls = video_player.querySelector('.controls'),
     progressArea = video_player.querySelector('.progress-area'),
+    bufferedBar = video_player.querySelector('.bufferedBar'),
     progressBar = video_player.querySelector('.progress-bar'),
     bufferBar = video_player.querySelector('.buffer-progress-bar'),
     fast_rewind = video_player.querySelector('.fast-rewind'),
@@ -23,29 +24,41 @@ const video_player = document.querySelector('#video-player'),
     caption_labels = video_player.querySelector('.captions ul'),
     playback = video_player.querySelectorAll('.playback li'),
     tracks = video_player.querySelectorAll('track');
-    change_audio = video_player.querySelector('.change_audio');
+    spinner = video_player.querySelector('.spinner');
 
+    change_audio = video_player.querySelector('.change_audio');
     let thumbnail = video_player.querySelector('.thumbnail');
 
-mainVideo.addEventListener('loadeddata', () => {
-    setInterval(() => {
-        let bufferedTime = mainVideo.buffered.end(0);
-        console.log(bufferedTime);
-        let duration = mainVideo.duration;
-        let width = (bufferedTime / duration) * 100;
-        bufferBar.style.width = `${width}%`;
-    }, 2000);
-})
 
 if (tracks.length != 0) {
-    caption_labels.insertAdjacentHTML('afterbegin', `<li data-track="OFF" class="active">OFF</li>`)
-    for (var i = 0; i < tracks.length; i++) {
-        trackLi = `<li data-track="${tracks[i].label}">${tracks[i].label}</li>`;
+    caption_labels.insertAdjacentHTML('afterbegin', `<li data-track="OFF" class="active">OFF</li>`);
+    for (let i = 0; i < tracks.length; i++) {
+        let trackLi = `<li data-track="${tracks[i].label}">${tracks[i].label}</li>`;
         caption_labels.insertAdjacentHTML('beforeend', trackLi);
     }
 }
 
-// audio changing
+// mainVideo.addEventListener('loadeddata', () => {
+//     const updateBufferBar = () => {
+//         if (mainVideo.buffered.length > 0) {
+//             let bufferedTime = mainVideo.buffered.end(0);
+//             let duration = mainVideo.duration;
+//             let width = (bufferedTime / duration) * 100;
+//             bufferBar.style.width = `${width}%`;
+
+//             // Clear interval if the video is fully buffered
+//             if (bufferedTime >= duration) {
+//                 clearInterval(bufferInterval);
+//             }
+//         }
+//     };
+
+//     // Run updateBufferBar every 2 seconds
+//     let bufferInterval = setInterval(updateBufferBar, 2000);
+    
+//     // Initial call to update buffer bar right after video is loaded
+//     updateBufferBar();
+// });
 
 
 const caption = captions.querySelectorAll('ul li');
@@ -174,12 +187,62 @@ mainVideo.addEventListener('timeupdate', (e) => {
 
 
 // Update playing video time using progress bar width
-progressArea.addEventListener('click', (e) => {
+progressArea.addEventListener('pointerdown', (e) => {
+    setTimelinePosition(e);
+    progressArea.addEventListener('pointermove', setTimelinePosition);
+    progressArea.addEventListener('pointerup', () => {
+        progressArea.removeEventListener('pointermove', setTimelinePosition);
+    })
+})
+
+function setTimelinePosition(e) {
     let currentVideoTime = mainVideo.duration;
-    let progressWidthval = progressArea.clientWidth;
+    let progressWidthval = progressArea.clientWidth + 2;
     let ClickOffsetX = e.offsetX;
 
     mainVideo.currentTime = (ClickOffsetX / progressWidthval) * currentVideoTime;
+
+    let progressWidth = (mainVideo.currentTime / videoDuration) * 100 + 0.5;
+    progressBar.style.width = `${progressWidth}%`;
+
+    let currentVideoTiming = mainVideo.currentTime;
+    let currentHours = Math.floor(currentVideoTiming / 3600);
+    let currentMin = Math.floor((currentVideoTiming % 3600) / 60);
+    let currentSec = Math.floor(currentVideoTiming % 60);
+
+    // If seconds are less than 10, add 0 at the beginning
+    currentSec = currentSec < 10 ? '0' + currentSec : currentSec;
+
+
+    current.innerText = `${currentHours}:${currentMin}:${currentSec}`;
+}
+
+function drawProgress(canvas, buffered, duration) {
+    let context = canvas.getContext('2d', {antialias : false});
+    context.fillStyle = '#ffffffe6';
+
+    let height = canvas.height;
+    let width = canvas.width;
+
+    if (!height || !width) throw "Canvas has no height or width";
+    context.clearRect(0, 0, width, height);
+    for (let i = 0; i < buffered.length; i++) {
+        let start = buffered.start(i) / duration * width;
+        let end = buffered.end(i) / duration * width;
+        context.fillRect(start, 0, end - start, height);
+    }
+}
+
+mainVideo.addEventListener('progress', (e) => {
+    drawProgress(bufferBar, mainVideo.buffered, mainVideo.duration);
+}, false)
+
+mainVideo.addEventListener('waiting', (e) => {
+    spinner.style.display = 'block';
+})
+
+mainVideo.addEventListener('canplay', (e) => {
+    spinner.style.display = 'none';
 })
 
 // change volume
@@ -219,6 +282,13 @@ volume.addEventListener('click', () => {
 progressArea.addEventListener('mousemove', (e) => {
     let progressWidthval = progressArea.clientWidth;
     let x = e.offsetX;
+    
+    let videoDuration = mainVideo.duration;
+    let progressTime = Math.floor((x / progressWidthval) * videoDuration);
+    
+    let currentHours = Math.floor(progressTime / 3600);
+    let currentMin = Math.floor((progressTime % 3600) / 60);
+    let currentSec = Math.floor(progressTime % 60);
 
     progressAreaTime.style.setProperty('--x', `${x}px`);
     progressAreaTime.style.display = 'block';
@@ -231,16 +301,6 @@ progressArea.addEventListener('mousemove', (e) => {
         x = e.offsetX;
     }
 
-    thumbnail.style.setProperty('--x', `${x}px`);
-    thumbnail.style.display = 'block';
-
-    let videoDuration = mainVideo.duration;
-    let progressTime = Math.floor((x / progressWidthval) * videoDuration);
-    
-    let currentHours = Math.floor(progressTime / 3600);
-    let currentMin = Math.floor((progressTime % 3600) / 60);
-    let currentSec = Math.floor(progressTime % 60);
-
     // If seconds are less than 10, add 0 at the beginning
     currentSec = currentSec < 10 ? '0' + currentSec : currentSec;
     // If minutes are less than 10, add 0 at the beginning
@@ -250,6 +310,21 @@ progressArea.addEventListener('mousemove', (e) => {
 
     // Display time in the format HH:MM:SS
     progressAreaTime.innerText = `${currentHours}:${currentMin}:${currentSec}`;
+
+    thumbnail.style.setProperty('--x', `${x}px`);
+    thumbnail.style.display = 'block';
+
+    for (var item of thumbnails) {
+        var data = item.sec.find(x1 => x1.index === Math.floor(progressTime));
+
+        if (data) {
+            if (item.data != undefined) {
+                thumbnail.setAttribute('style', `background-image: url(${item.data});background-position-x: ${data.backgroundPositionX}px;background-position-y: ${data.backgroundPositionY}px;--x: ${x}px;display: block;`)
+
+                return;
+            }
+        }
+    }
 });
 
 
@@ -355,7 +430,6 @@ function removeActiveClasses(e) {
 
 // changing Captions
 let track = mainVideo.textTracks;
-console.log(track);
 function changeCaption(label) {
     let trackLable = label.getAttribute('data-track');
     for (let i = 0; i < track.length; i++) {
@@ -381,17 +455,46 @@ for (let i = 0; i < track.length; i++) {
 }
 
 // Blob url
-// let xhr = new XMLHttpRequest();
-// const videoSource = mainVideo.querySelector('source');
-// xhr.open('GET', `${videoSource.src}`);
-// console.log(videoSource.src);
-// xhr.responseType = 'arraybuffer';
-// xhr.onload = (e) => {
-//     let blob = new Blob([xhr.response]);
-//     let url = URL.createObjectURL(blob);
-//     mainVideo.src = url;
-// }
-// xhr.send();
+const videoSources = [{src: './videos/Wonderland-2024.mkv'}];
+videoSources.forEach(video => {
+    const source = document.createElement('source');
+    source.src = video.src;
+    mainVideo.appendChild(source);
+});
+let mainVideoSources = mainVideo.querySelectorAll('source');
+for (let i = 0; i < mainVideoSources.length; i++) {
+    let videoUrl = mainVideoSources[i].src;
+    blobUrl(mainVideoSources[i], videoUrl);
+}
+
+function blobUrl(video, videoUrl) {
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', videoUrl);
+    xhr.responseType = 'arraybuffer';
+    xhr.onload = (e) => {
+        let blob = new Blob([xhr.response]);
+        let url = URL.createObjectURL(blob);
+        video.src = url;
+    }
+    xhr.send();
+}
+
+// another file blob url
+const posterImg = './wonderland.jpg';
+const videoPoster = mainVideo.setAttribute('poster', posterImg);
+
+function blobFileUrl(fileUrl) {
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', fileUrl);
+    xhr.responseType = 'arraybuffer';
+    xhr.onload = (e) => {
+        let blob = new Blob([xhr.response]);
+        let url = URL.createObjectURL(blob);
+        mainVideo.setAttribute('poster', url);
+    }
+    xhr.send();
+}
+blobFileUrl(posterImg);
 
 // store video duration and path in local storage
 // window.addEventListener('unload', () => {
@@ -450,26 +553,26 @@ if (video_player.classList.contains('paused')) {
 }
 
 // mobile touch controls
-video_player.addEventListener('touchstart', () => {
-    controls.classList.add('active');
-    setTimeout(() => {
-        controls.classList.remove('active');
-        if (tracks.length != 0) {
-            caption_text.classList.add('active');
-        }
-    }, 5000);
-})
+// video_player.addEventListener('touchstart', () => {
+//     controls.classList.add('active');
+//     setTimeout(() => {
+//         controls.classList.remove('active');
+//         if (tracks.length != 0) {
+//             caption_text.classList.add('active');
+//         }
+//     }, 5000);
+// })
 
-video_player.addEventListener('touchmove', () => {
-    if (video_player.classList.contains('paused')) {
-        controls.classList.remove('active');
-        if (tracks.length != 0) {
-            caption_text.classList.add('active');
-        }
-    } else {
-        controls.classList.add('active');
-    }
-})
+// video_player.addEventListener('touchmove', () => {
+//     if (video_player.classList.contains('paused')) {
+//         controls.classList.remove('active');
+//         if (tracks.length != 0) {
+//             caption_text.classList.add('active');
+//         }
+//     } else {
+//         controls.classList.add('active');
+//     }
+// })
 
 if (tracks.length == 0) {
     caption_labels.remove();
@@ -481,8 +584,8 @@ if (tracks.length == 0) {
 // Video Preview
 var thumbnails = [];
 
-var thumbnailWidth = 200;
-var thumbnailHeight = 120;
+var thumbnailWidth = 158;
+var thumbnailHeight = 90;
 var horizontalItemCount = 5;
 var verticalItemCount = 5;
 
@@ -491,8 +594,9 @@ preview_video.preload = 'metadata';
 preview_video.width = "500";
 preview_video.height = "300";
 preview_video.controls = true;
+preview_video.src = mainVideo.querySelector('source').src;
 
-preview_video.addEventListener('loadeddata', (e) => {
+preview_video.addEventListener('loadeddata', async function () {
     preview_video.pause();
 
     var count = 1;
@@ -500,4 +604,97 @@ preview_video.addEventListener('loadeddata', (e) => {
     var id = 1;
 
     var x = 0, y = 0;
-})
+
+    var array = [];
+
+    var duration = parseInt(preview_video.duration);
+
+    for (var i = 1; i < duration; i ++) {
+        array.push(i);
+    }
+
+    var canvas;
+
+    var i, j;
+
+    for (i = 0, j = array.length; i < j; i += horizontalItemCount) {
+        for (var startIndex of array.slice(i,  i + horizontalItemCount)) {
+            var backgroundPositionX = x * thumbnailWidth;
+            var backgroundPositionY = y * thumbnailHeight;
+
+            var item = thumbnails.find((x) => x.id === id);
+
+            if (!item) {
+                canvas = document.createElement('canvas');
+
+                canvas.width = thumbnailWidth * horizontalItemCount;
+                canvas.height = thumbnailHeight * verticalItemCount;
+
+                thumbnails.push({
+                    id: id,
+                    canvas: canvas,
+                    sec: [
+                        {
+                            index: startIndex,
+                            backgroundPositionX: -backgroundPositionX,
+                            backgroundPositionY: -backgroundPositionY,
+                        },
+                    ],
+                });
+            } else {
+                canvas = item.canvas;
+
+                item.sec.push({
+                    index: startIndex,
+                    backgroundPositionX: -backgroundPositionX,
+                    backgroundPositionY: -backgroundPositionY,
+                });
+            }
+
+            var context = canvas.getContext('2d');
+
+            preview_video.currentTime = startIndex;
+
+            await new Promise(function (resolve) {
+                var event = function () {
+                    context.drawImage(
+                        preview_video,
+                        backgroundPositionX,
+                        backgroundPositionY,
+                        thumbnailWidth,
+                        thumbnailHeight
+                    );
+
+                    x++;
+
+                    preview_video.removeEventListener('canplay', event);
+
+                    resolve();
+                };
+                preview_video.addEventListener('canplay', event);
+            });
+
+            count++;
+        }
+
+        x = 0;
+        y++;
+
+        if (count > horizontalItemCount * verticalItemCount) {
+            count = 1;
+            x = 0;
+            y = 0;
+            id++;
+        }
+    }
+
+    console.log(thumbnails);
+
+    thumbnails.forEach(function (item) {
+        item.canvas.toBlob((blob) => (item.data = URL.createObjectURL(blob)), 'image/jpeg');
+
+        delete item.canvas;
+    });
+
+    console.log("data....");
+});

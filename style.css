@@ -138,9 +138,8 @@ section {
 }
 
 #video-player .controls .progress-area {
-    height: 8px;
-    width: 99%;
-    border-radius: 5px;
+    height: 10px;
+    width: 99.5%;
     margin: auto;
     background: #f0f0f07c;
     cursor: pointer;

@@ -49,9 +49,9 @@ section {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 60px;
-    height: 60px;
-    border: 4px solid #fff;
+    width: 80px;
+    height: 80px;
+    border: 8px solid rgb(255, 174, 0);
     border-bottom-color: transparent;
     z-index: 1;
     border-radius: 50%;
@@ -66,6 +66,137 @@ section {
     100% {
         transform: translate(-50%, -50%) rotate(360deg);
     }
+}
+
+.container #video-player .play-icon .material-icons {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 100px;
+    z-index: 10;
+    color: rgba(255, 255, 255, 0.8);
+    display: none;
+    animation: glow 5s ease-in-out infinite;
+}
+
+@keyframes glow {
+    0% {
+        text-shadow: 0 0 5px rgba(255, 174, 0, 0.4), 
+                     0 0 10px rgba(255, 174, 0, 0.4), 
+                     0 0 15px rgba(255, 174, 0, 0.4), 
+                     0 0 20px rgba(255, 174, 0, 0.4), 
+                     0 0 25px rgba(255, 174, 0, 0.4);
+    }
+    50% {
+        text-shadow: 0 0 10px rgba(255, 174, 0, 0.8), 
+                     0 0 20px rgba(255, 174, 0, 0.8), 
+                     0 0 30px rgba(255, 174, 0, 0.8), 
+                     0 0 40px rgba(255, 174, 0, 0.8), 
+                     0 0 50px rgba(255, 174, 0, 0.8);
+    }
+    100% {
+        text-shadow: 0 0 5px rgba(255, 174, 0, 0.4), 
+                     0 0 10px rgba(255, 174, 0, 0.4), 
+                     0 0 15px rgba(255, 174, 0, 0.4), 
+                     0 0 20px rgba(255, 174, 0, 0.4), 
+                     0 0 25px rgba(255, 174, 0, 0.4);
+    }
+}
+
+.container #video-player .play_volume {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    z-index: 10;
+    color: rgba(255, 255, 255, 0.8);
+    transform: translate(-50%, -50%);
+    animation: all .3s ease-in-out infinite;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.container #video-player .play_volume i {
+    font-size: 50px;
+    margin: 0 15px;
+}
+
+.container #video-player .play_volume span {
+    font-size: 20px;
+}
+
+.container #video-player .play_rewind {
+    position: absolute;
+    top: 50%;
+    left: 20%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.24);
+    z-index: 1;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.container #video-player .play_rewind .play_rewind_icon,
+.container #video-player .play_forward .play_forward_icon {
+    position: inherit;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 50px;
+    z-index: 10;
+    color: transparent;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    background-size: 200% 100%; /* Ensure background is wide enough to animate */
+    animation: fillMove 0.5s ease-in-out forwards; /* Apply the animation */
+}
+
+@keyframes fillMove {
+    0% {
+        background-position: 200% 0%;
+    }
+    100% {
+        background-position: 0% 0%;
+    }
+}
+
+.container #video-player .play_rewind span,
+.container #video-player .play_forward span {
+    position: inherit;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    z-index: 10;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.container #video-player .play_forward {
+    position: absolute;
+    top: 50%;
+    right: 5%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.24);
+    z-index: 1;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .container #video-player .thumbnail {
@@ -186,6 +317,23 @@ section {
 
 video::cue {
     opacity: 0;
+}
+
+.videoLogo {
+    position: absolute;
+    right: 0;
+    top: 11%;
+    width: 140px;
+    /* height: 100%; */
+    z-index: 2;
+    object-fit: contain;
+    transform: translateY(-50%);
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: none;
+    transition: top 0.3s;
+    background: transparent;
+    opacity: 0.4;
 }
 
 .captions_text {

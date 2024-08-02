@@ -25,6 +25,10 @@ const video_player = document.querySelector('#video-player'),
     playback = video_player.querySelectorAll('.playback li'),
     tracks = video_player.querySelectorAll('track');
     spinner = video_player.querySelector('.spinner');
+    play_circle = video_player.querySelector('.play_circle');
+    play_rewind_display = video_player.querySelector('.play_rewind_display');
+    play_forward_display = video_player.querySelector('.play_forward_display');
+    play_volume_display = video_player.querySelector('.play_volume_display');
 
     change_audio = video_player.querySelector('.change_audio');
     let thumbnail = video_player.querySelector('.thumbnail');
@@ -37,6 +41,26 @@ if (tracks.length != 0) {
         caption_labels.insertAdjacentHTML('beforeend', trackLi);
     }
 }
+
+const videoPlayerLogo = document.createElement('img');
+videoPlayerLogo.src = './img/logo.png';
+videoPlayerLogo.classList.add('videoLogo');
+video_player.appendChild(videoPlayerLogo);
+
+const logoImage = video_player.querySelector('.videoLogo');
+function blobImage(fileUrl) {
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', fileUrl.src);
+    xhr.responseType = 'arraybuffer';
+    xhr.onload = (e) => {
+        let blob = new Blob([xhr.response]);
+        let url = URL.createObjectURL(blob);
+        fileUrl.src = url;
+    }
+    xhr.send();
+}
+
+blobImage(logoImage);
 
 // mainVideo.addEventListener('loadeddata', () => {
 //     const updateBufferBar = () => {
@@ -82,24 +106,93 @@ function pauseVideo() {
 mainVideo.addEventListener('click', () => {
     const isVideoPaused = video_player.classList.contains('paused');
 
-    isVideoPaused ? pauseVideo() : playVideo();
+    if (isVideoPaused) {
+        pauseVideo();
+        play_circle.style.display = 'block';
+    } else {
+        playVideo();
+        play_circle.style.display = 'none';
+    }
 })
 
+play_circle.addEventListener('click', () => {
+    playVideo();
+    play_circle.style.display = 'none';    
+})
+
+// Play and pause video on spacebar
 document.addEventListener('keydown', (event) => {
     if (event.code === 'Space') {
         event.preventDefault(); // Prevent default spacebar behavior (scrolling)
         const isVideoPaused = video_player.classList.contains('paused');
-        isVideoPaused ? pauseVideo() : playVideo();
+        if (isVideoPaused) {
+            pauseVideo();
+            play_circle.style.display = 'block';
+        } else {
+            playVideo();
+            play_circle.style.display = 'none';
+        }
+
+        if (video_player.classList.contains('paused')) {
+            if (settingsBtn.classList.contains('active') || captionsBtn.classList.contains('active')) {
+                controls.classList.add('active');
+            } else {
+                controls.classList.remove('active');
+                if (tracks.length != 0) {
+                    caption_text.classList.add('active');
+                }
+            }
+        } else {
+            controls.classList.add('active');
+        }
     } else if (event.code === 'ArrowLeft') {
-        mainVideo.currentTime -= 10; // Fast rewind
+        // Fast rewind
+        let timeout;
+        mainVideo.currentTime -= 10;
+        play_rewind_display.style.display = 'block';
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            play_rewind_display.style.display = 'none';
+        }, 500);
     } else if (event.code === 'ArrowRight') {
-        mainVideo.currentTime += 10; // Fast forward
+        let timeout;
+        mainVideo.currentTime += 10;
+        play_forward_display.style.display = 'block';
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            play_forward_display.style.display = 'none';
+        }, 500);
     } else if (event.code === 'KeyM') {
         muteVolume(); // Mute/unmute video
     } else if (event.code === 'ArrowUp') {
+        let timeout;
         changeVolumeLevel(1); // Increase volume
+        const volume_up = play_volume_display.querySelector('i');
+        const volume_text = play_volume_display.querySelector('span');
+        volume_up.innerHTML = 'volume_up';
+        volume_text.innerHTML = `${volume_range.value} %`;
+        play_volume_display.style.display = 'block';
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            play_volume_display.style.display = 'none';
+        }, 2000);
     } else if (event.code === 'ArrowDown') {
+        let timeout;
         changeVolumeLevel(-1); // Decrease volume
+        const volume_down = play_volume_display.querySelector('i');
+        const volume_text = play_volume_display.querySelector('span');
+        if (volume_range.value == 0) {
+            volume_down.innerHTML = 'volume_off';
+            volume_text.innerHTML = `${volume_range.value} %`;
+        } else {
+            volume_down.innerHTML = 'volume_down';
+            volume_text.innerHTML = `${volume_range.value} %`;
+        }
+        play_volume_display.style.display = 'block';
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            play_volume_display.style.display = 'none';
+        }, 2000);
     }
 });
 
@@ -123,7 +216,13 @@ function changeVolumeLevel(direction) {
 play_pause.addEventListener('click', () => {
     const isVideoPaused = video_player.classList.contains('paused');
 
-    isVideoPaused ? pauseVideo() : playVideo();
+    if (isVideoPaused) {
+        pauseVideo();
+        play_circle.style.display = 'block';
+    } else {
+        playVideo();
+        play_circle.style.display = 'none';
+    }
 })
 
 mainVideo.addEventListener('play', () => {
@@ -136,12 +235,24 @@ mainVideo.addEventListener('pause', () => {
 
 // fast_rewind video function
 fast_rewind.addEventListener('click', () => {
+    let timeout;
     mainVideo.currentTime -= 10;
+    play_rewind_display.style.display = 'block';
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+        play_rewind_display.style.display = 'none';
+    }, 500);
 })
 
 // fast_forward video function
 fast_forward.addEventListener('click', () => {
+    let timeout;
     mainVideo.currentTime += 10;
+    play_forward_display.style.display = 'block';
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+        play_forward_display.style.display = 'none';
+    }, 500);
 })
 
 // Load video duration
@@ -729,6 +840,7 @@ preview_video.addEventListener('loadeddata', async function () {
 // if user active on screen
 window.addEventListener('focus', () => {
     mainVideo.play();
+    play_circle.style.display = 'none';
 })
 
 window.addEventListener('blur', () => {

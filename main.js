@@ -193,6 +193,23 @@ document.addEventListener('keydown', (event) => {
         timeout = setTimeout(() => {
             play_volume_display.style.display = 'none';
         }, 2000);
+    } else if (event.code === 'KeyC') {
+        // Disable all tracks
+        for (let i = 0; i < tracks.length; i++) {
+            tracks[i].mode = 'disabled';
+        }
+
+        // Enable the current track
+        if (tracks.length > 0) {
+            tracks[currentTrackIndex].mode = 'showing';
+        }
+
+        // Update active class for captions
+        removeActiveClasses(captions);
+        captions[currentTrackIndex].classList.add('active');
+
+        // Move to the next track for the next key press
+        currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
     }
 });
 
@@ -653,28 +670,6 @@ video_player.addEventListener('mousemove', () => {
     clearTimeout(timeout);
     hideControls();
 });
-
-// video_player.addEventListener('mouseenter', () => {
-//     controls.classList.add('active');
-//     if (tracks.length != 0) {
-//         caption_text.classList.remove('active');
-//     }
-// })
-
-// video_player.addEventListener('mouseleave', () => {
-//     if (video_player.classList.contains('paused')) {
-//         if (settingsBtn.classList.contains('active') || captionsBtn.classList.contains('active')) {
-//             controls.classList.add('active');
-//         } else {
-//             controls.classList.remove('active');
-//             if (tracks.length != 0) {
-//                 caption_text.classList.add('active');
-//             }
-//         }
-//     } else {
-//         controls.classList.add('active');
-//     }
-// })
 
 if (video_player.classList.contains('paused')) {
     if (settingsBtn.classList.contains('active') || captionsBtn.classList.contains('active')) {

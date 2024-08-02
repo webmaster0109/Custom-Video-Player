@@ -517,15 +517,11 @@ mainVideo.addEventListener('contextmenu', (e) => {
 });
 
 // Mouse over
-video_player.addEventListener('mouseenter', () => {
-    controls.classList.add('active');
-    if (tracks.length != 0) {
-        caption_text.classList.remove('active');
-    }
-})
+let timeout;
 
-video_player.addEventListener('mouseleave', () => {
-    if (video_player.classList.contains('paused')) {
+function hideControls() {
+    if (mainVideo.paused) return;
+    timeout = setTimeout(() => {
         if (settingsBtn.classList.contains('active') || captionsBtn.classList.contains('active')) {
             controls.classList.add('active');
         } else {
@@ -534,10 +530,40 @@ video_player.addEventListener('mouseleave', () => {
                 caption_text.classList.add('active');
             }
         }
-    } else {
-        controls.classList.add('active');
+    }, 3000);
+}
+
+hideControls();
+video_player.addEventListener('mousemove', () => {
+    controls.classList.add('active');
+    if (tracks.length != 0) {
+        caption_text.classList.remove('active');
     }
-})
+    clearTimeout(timeout);
+    hideControls();
+});
+
+// video_player.addEventListener('mouseenter', () => {
+//     controls.classList.add('active');
+//     if (tracks.length != 0) {
+//         caption_text.classList.remove('active');
+//     }
+// })
+
+// video_player.addEventListener('mouseleave', () => {
+//     if (video_player.classList.contains('paused')) {
+//         if (settingsBtn.classList.contains('active') || captionsBtn.classList.contains('active')) {
+//             controls.classList.add('active');
+//         } else {
+//             controls.classList.remove('active');
+//             if (tracks.length != 0) {
+//                 caption_text.classList.add('active');
+//             }
+//         }
+//     } else {
+//         controls.classList.add('active');
+//     }
+// })
 
 if (video_player.classList.contains('paused')) {
     if (settingsBtn.classList.contains('active') || captionsBtn.classList.contains('active')) {
@@ -584,8 +610,8 @@ if (tracks.length == 0) {
 // Video Preview
 var thumbnails = [];
 
-var thumbnailWidth = 158;
-var thumbnailHeight = 90;
+var thumbnailWidth = 200;
+var thumbnailHeight = 120;
 var horizontalItemCount = 5;
 var verticalItemCount = 5;
 
@@ -698,3 +724,13 @@ preview_video.addEventListener('loadeddata', async function () {
 
     console.log("data....");
 });
+
+
+// if user active on screen
+window.addEventListener('focus', () => {
+    mainVideo.play();
+})
+
+window.addEventListener('blur', () => {
+    mainVideo.pause();
+})

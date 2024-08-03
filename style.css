@@ -494,6 +494,7 @@ video::cue {
     transform: rotate(45deg);
 }
 
+#video-player #audio-tracks,
 #video-player #captions,
 #video-player #settings {
     position: absolute;
@@ -508,11 +509,13 @@ video::cue {
     display: none;
 }
 
+#video-player #audio-tracks.active,
 #video-player #captions.active,
 #video-player #settings.active {
     display: block;
 }
 
+#video-player #audio-tracks .audio-tracks span,
 #video-player #captions .captions span,
 #video-player #settings .playback span {
     font-size: 14px;
@@ -522,11 +525,13 @@ video::cue {
     border-bottom: 1px solid rgb(83 83 83);
 }
 
+#video-player #audio-tracks .audio-tracks ul,
 #video-player #captions .captions ul,
 #video-player #settings .playback ul {
     position: relative;
 }
 
+#video-player #audio-tracks .audio-tracks ul li,
 #video-player #captions .captions ul li,
 #video-player #settings .playback ul li {
     position: relative;
@@ -537,11 +542,13 @@ video::cue {
     font-size: 14px;
 }
 
+#video-player #audio-tracks .audio-tracks ul li:hover,
 #video-player #captions .captions ul li:hover,
 #video-player #settings .playback ul li:hover {
     background: rgba(28, 28, 28, 0.9);
 }
 
+#video-player #audio-tracks .audio-tracks ul li::before,
 #video-player #captions .captions ul li.active::before,
 #video-player #settings .playback ul li.active::before {
     content: '\e876';
@@ -554,12 +561,14 @@ video::cue {
     font-size: 18px;
 }
 
+#video-player #audio-tracks::-webkit-scrollbar,
 #video-player #captions::-webkit-scrollbar,
 #video-player #settings::-webkit-scrollbar {
     width: 8px;
     background: transparent;
 }
 
+#video-player #audio-tracks::-webkit-scrollbar-thumb,
 #video-player #captions::-webkit-scrollbar-thumb,
 #video-player #settings::-webkit-scrollbar-thumb {
     background: rgba(83, 83, 83, 0.9);

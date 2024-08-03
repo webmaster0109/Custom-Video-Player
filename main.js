@@ -194,23 +194,23 @@ document.addEventListener('keydown', (event) => {
             play_volume_display.style.display = 'none';
         }, 2000);
     } else if (event.code === 'KeyC') {
-        // Disable all tracks
-        for (let i = 0; i < tracks.length; i++) {
-            tracks[i].mode = 'disabled';
+            // Disable all tracks
+            for (let i = 0; i < tracks.length; i++) {
+                tracks[i].mode = 'disabled';
+            }
+
+            // Enable the current track
+            if (tracks.length > 0) {
+                tracks[currentTrackIndex].mode = 'showing';
+            }
+
+            // Update active class for captions
+            removeActiveClasses(captions);
+            captions[currentTrackIndex].classList.add('active');
+
+            // Move to the next track for the next key press
+            currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
         }
-
-        // Enable the current track
-        if (tracks.length > 0) {
-            tracks[currentTrackIndex].mode = 'showing';
-        }
-
-        // Update active class for captions
-        removeActiveClasses(captions);
-        captions[currentTrackIndex].classList.add('active');
-
-        // Move to the next track for the next key press
-        currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
-    }
 });
 
 
